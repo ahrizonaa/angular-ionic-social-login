@@ -50,6 +50,8 @@ type User = {
   profilePhotoUrl?: string;
 };
 
+declare const FB: any;
+
 const FACEBOOK_PERMISSIONS = ['email', 'public_profile'];
 
 @Component({
