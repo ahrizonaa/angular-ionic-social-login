@@ -6,7 +6,22 @@
 
 ## Usage
 
-1. Inside of any angular template:
+1.  Import:
+
+```
+import { IonicSocialLoginComponent } from 'ionic-social-login';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './signin.component.html',
+  styleUrls: ['./signin.component.scss'],
+  standalone: true,
+  imports: [IonicSocialLoginComponent],
+})
+export class SigninComponent {
+```
+
+2.  Inside of Angular template:
 
 ```
   <ngx-ionic-social-login
