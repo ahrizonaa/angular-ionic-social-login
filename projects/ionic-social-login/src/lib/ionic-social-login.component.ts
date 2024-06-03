@@ -110,6 +110,9 @@ export class IonicSocialLoginComponent implements OnInit {
   @Input() googleClientKey!: string;
   @Input() facebookClientKey!: string;
 
+  isGoogleInitialized: boolean = false;
+  isFacebookInitialized: boolean = false;
+
   constructor() {
     addIcons({
       logoFacebook,
@@ -120,49 +123,101 @@ export class IonicSocialLoginComponent implements OnInit {
   ngOnInit(): void {
     if (!isPlatform('capacitor')) {
       if (this.googleClientKey) {
-        this.InitGoogle(this.googleClientKey);
+        this.InitGoogle(this.googleClientKey)
+          .then((res) => {
+            this.isGoogleInitialized = true;
+          })
+          .catch((err) => {
+            console.error(err);
+            this.isGoogleInitialized = false;
+          });
       }
 
-      (async () => {
-        if (this.facebookClientKey) {
-          await this.InitFacebook(this.facebookClientKey);
-        }
-      })();
+      if (this.facebookClientKey) {
+        this.InitFacebook(this.facebookClientKey)
+          .then((res) => {
+            this.isFacebookInitialized = true;
+          })
+          .catch((err) => {
+            console.error(err);
+            this.isFacebookInitialized = false;
+          });
+      }
     }
   }
 
   async SignInGoogle() {
-    let user = await GoogleAuth.signIn();
-    if (user.email) {
-      this.googleUser.emit(user);
-    }
-  }
+    if (this.googleClientKey && !this.isGoogleInitialized) {
+      this.InitGoogle(this.googleClientKey)
+        .then(async (res) => {
+          this.isGoogleInitialized = true;
 
-  async SignInFacebook() {
-    const result: FacebookLoginResponse = await FacebookLogin.login({
-      permissions: FACEBOOK_PERMISSIONS,
-    });
-
-    if (result.accessToken && result.accessToken.token) {
-      let user: FacebookUser = await FacebookLogin.getProfile({
-        fields: ['email', 'name', 'picture'],
-      });
+          let user = await GoogleAuth.signIn();
+          if (user.email) {
+            this.googleUser.emit(user);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          this.isGoogleInitialized = false;
+        });
+    } else {
+      let user = await GoogleAuth.signIn();
       if (user.email) {
-        this.facebookUser.emit(user);
+        this.googleUser.emit(user);
       }
     }
   }
 
-  InitGoogle(clientId: string) {
+  async SignInFacebook() {
+    if (this.facebookClientKey && !this.isFacebookInitialized) {
+      this.InitFacebook(this.facebookClientKey)
+        .then(async (res) => {
+          this.isFacebookInitialized = true;
+
+          const result: FacebookLoginResponse = await FacebookLogin.login({
+            permissions: FACEBOOK_PERMISSIONS,
+          });
+
+          if (result.accessToken && result.accessToken.token) {
+            let user: FacebookUser = await FacebookLogin.getProfile({
+              fields: ['email', 'name', 'picture'],
+            });
+            if (user.email) {
+              this.facebookUser.emit(user);
+            }
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          this.isFacebookInitialized = false;
+        });
+    } else {
+      const result: FacebookLoginResponse = await FacebookLogin.login({
+        permissions: FACEBOOK_PERMISSIONS,
+      });
+
+      if (result.accessToken && result.accessToken.token) {
+        let user: FacebookUser = await FacebookLogin.getProfile({
+          fields: ['email', 'name', 'picture'],
+        });
+        if (user.email) {
+          this.facebookUser.emit(user);
+        }
+      }
+    }
+  }
+
+  InitGoogle(clientId: string): Promise<void> {
     let options: InitOptions = {
       clientId: clientId,
       scopes: ['profile'],
       grantOfflineAccess: true,
     };
-    GoogleAuth.initialize(options);
+    return GoogleAuth.initialize(options);
   }
 
-  async InitFacebook(appId: string) {
-    await FacebookLogin.initialize({ appId });
+  InitFacebook(appId: string): Promise<void> {
+    return FacebookLogin.initialize({ appId });
   }
 }

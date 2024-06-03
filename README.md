@@ -1,27 +1,80 @@
 # NgxIonicSocialLogin
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.1.
+## Install
 
-## Development server
+`npm i ionic-social-login`
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Usage
 
-## Code scaffolding
+1. Inside of any angular template:
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```
+  <ngx-ionic-social-login
+    [googleClientKey]="googleClientKey"
+    [facebookClientKey]="facebookClientKey"
+    (googleUser)="googleUserReceived($event)"
+    (facebookUser)="facebookUserReceived($event)"
+  ></ngx-ionic-social-login>
 
-## Build
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Properties
 
-## Running unit tests
+#### `googleClientKey`
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- Type: string
+- Required: Yes
+- Note: Developer must acquire this key from Google Cloud Console
 
-## Running end-to-end tests
+#### `facebookClientKey`
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Type: string
+- Required: Yes
+- Note: Developer must acquire this key from Meta Developer Dashboard
 
-## Further help
+### Events
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+#### `googleUser`
+
+- Output Type:
+
+```
+type User {
+    id: string;
+    email: string;
+    name: string;
+    familyName: string;
+    givenName: string;
+    imageUrl: string;
+    serverAuthCode: string;
+    authentication: Authentication;
+}
+
+type Authentication {
+    accessToken: string;
+    idToken: string;
+    refreshToken?: string;
+}
+```
+
+- Required: No
+
+#### `facebookUser`
+
+- Output Type:
+
+```
+type User = {
+  email: string;
+  id: string;
+  name: string;
+  picture: {
+    height: number;
+    width: number;
+    is_silhouette: boolean;
+    url: string;
+  };
+};
+```
+
+- Required: No
